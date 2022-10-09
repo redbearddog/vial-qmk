@@ -505,6 +505,16 @@ if (QS_oneshot_tap_toggle > 1) {
             }
             break;
 #endif
+#ifdef APPLE_FN_ENABLE
+        /* Apple Fn */
+        case ACT_APPLE_FN:
+            if (event.pressed) {
+                register_code(KC_APPLE_FN);
+            } else {
+                unregister_code(KC_APPLE_FN);
+            }
+            break;
+#endif
 #ifdef MOUSEKEY_ENABLE
         /* Mouse key */
         case ACT_MOUSEKEY:
@@ -912,6 +922,12 @@ __attribute__((weak)) void register_code(uint8_t code) {
         host_consumer_send(KEYCODE2CONSUMER(code));
     }
 #endif
+#ifdef APPLE_FN_ENABLE
+    else if IS_APPLE_FN (code) {
+        add_key(code);
+        send_keyboard_report();
+    }
+#endif
 #ifdef MOUSEKEY_ENABLE
     else if IS_MOUSEKEY (code) {
         mousekey_on(code);
@@ -972,6 +988,12 @@ __attribute__((weak)) void unregister_code(uint8_t code) {
     } else if IS_CONSUMER (code) {
         host_consumer_send(0);
     }
+#ifdef APPLE_FN_ENABLE
+    else if IS_APPLE_FN (code) {
+        del_key(code);
+        send_keyboard_report();
+    }
+#endif
 #ifdef MOUSEKEY_ENABLE
     else if IS_MOUSEKEY (code) {
         mousekey_off(code);
@@ -1172,6 +1194,9 @@ void debug_action(action_t action) {
             break;
         case ACT_USAGE:
             dprint("ACT_USAGE");
+            break;
+        case ACT_APPLE_FN:
+            dprint("ACT_APPLE_FN");
             break;
         case ACT_MOUSEKEY:
             dprint("ACT_MOUSEKEY");
